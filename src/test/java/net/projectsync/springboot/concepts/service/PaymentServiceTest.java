@@ -1,9 +1,9 @@
 package net.projectsync.springboot.concepts.service;
 
 import net.projectsync.springboot.concepts.model.AuditLogger;
-import net.projectsync.springboot.concepts.model.RequestTracker;
-import net.projectsync.springboot.concepts.model.SessionTracker;
-import net.projectsync.springboot.concepts.model.Transaction;
+import net.projectsync.springboot.concepts.model.RequestScope;
+import net.projectsync.springboot.concepts.model.SessionScope;
+import net.projectsync.springboot.concepts.model.PrototypeScope;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,16 +21,16 @@ class PaymentServiceTest {
     private AuditLogger auditLogger;
 
     @Mock
-    private ObjectFactory<Transaction> transactionFactory;
+    private ObjectFactory<PrototypeScope> PrototypeFactory;
 
     @Mock
-    private Transaction transaction;
+    private PrototypeScope prototypeScope;
 
     @Mock
-    private RequestTracker requestTracker;
+    private RequestScope requestScope;
 
     @Mock
-    private SessionTracker sessionTracker;
+    private SessionScope sessionScope;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -39,27 +39,27 @@ class PaymentServiceTest {
     @DisplayName("Prototype scope: each Transaction should be a new instance")
     void prototypeScopeTest() {
         // Stub prototype factory to return transaction mock
-        Mockito.when(transactionFactory.getObject()).thenReturn(transaction);
+        Mockito.when(PrototypeFactory.getObject()).thenReturn(prototypeScope);
 
         // Call transfer twice
         paymentService.transfer("A", "B", 100);
         paymentService.transfer("C", "D", 200);
 
         // Verify factory called twice, process called twice
-        Mockito.verify(transactionFactory, Mockito.times(2)).getObject();
-        Mockito.verify(transaction, Mockito.times(2)).process();
+        Mockito.verify(PrototypeFactory, Mockito.times(2)).getObject();
+        Mockito.verify(prototypeScope, Mockito.times(2)).process(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble());
     }
 
     @Test
     @DisplayName("Request scope: each request should get a different RequestTracker")
     void requestScopeTest() {
         // Stub RequestTracker to simulate two different requests
-        Mockito.when(requestTracker.getRequestId())
+        Mockito.when(requestScope.getRequestUUID())
                 .thenReturn("request-id-1")
                 .thenReturn("request-id-2");
 
-        String id1 = paymentService.getRequestId();
-        String id2 = paymentService.getRequestId();
+        String id1 = paymentService.getRequestUUID();
+        String id2 = paymentService.getRequestUUID();
 
         Assertions.assertThat(id1).isNotEqualTo(id2);
     }
@@ -68,10 +68,10 @@ class PaymentServiceTest {
     @DisplayName("Session scope: same session should return same SessionTracker")
     void sessionScopeSameSessionTest() {
         // Stub SessionTracker to simulate same session
-        Mockito.when(sessionTracker.getSessionId()).thenReturn("same-session-id");
+        Mockito.when(sessionScope.getSessionUUID()).thenReturn("same-session-id");
 
-        String id1 = paymentService.getSessionId();
-        String id2 = paymentService.getSessionId();
+        String id1 = paymentService.getSessionUUID();
+        String id2 = paymentService.getSessionUUID();
 
         Assertions.assertThat(id1).isEqualTo(id2);
     }
@@ -80,12 +80,12 @@ class PaymentServiceTest {
     @DisplayName("Session scope: different sessions should return different SessionTracker")
     void sessionScopeDifferentSessionsTest() {
         // Stub SessionTracker to simulate two different sessions
-        Mockito.when(sessionTracker.getSessionId())
+        Mockito.when(sessionScope.getSessionUUID())
                 .thenReturn("session-id-1")
                 .thenReturn("session-id-2");
 
-        String id1 = paymentService.getSessionId();
-        String id2 = paymentService.getSessionId();
+        String id1 = paymentService.getSessionUUID();
+        String id2 = paymentService.getSessionUUID();
 
         Assertions.assertThat(id1).isNotEqualTo(id2);
     }

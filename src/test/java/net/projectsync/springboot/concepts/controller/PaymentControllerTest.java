@@ -44,7 +44,7 @@ public class PaymentControllerTest {
     @DisplayName("Request endpoint should give different IDs per request")
     void requestScopeShouldGiveDifferentIdsPerRequest() throws Exception {
         // Mock getRequestInfo() to return different IDs per call
-        when(paymentService.getRequestId())
+        when(paymentService.getRequestUUID())
                 .thenReturn("request-id-1")
                 .thenReturn("request-id-2");
 
@@ -68,7 +68,7 @@ public class PaymentControllerTest {
     void sessionScopeShouldRemainSameWithinSameSession() throws Exception {
         MockHttpSession session = new MockHttpSession();
 
-        when(paymentService.getSessionId()).thenReturn("session-id-123");
+        when(paymentService.getSessionUUID()).thenReturn("session-id-123");
 
         String id1 = mockMvc.perform(get("/session").session(session))
                 .andExpect(status().isOk())
@@ -89,7 +89,7 @@ public class PaymentControllerTest {
     @DisplayName("Session endpoint should change across different sessions")
     void sessionScopeShouldChangeAcrossDifferentSessions() throws Exception {
         // Mock getSessionInfo() to return different IDs per call
-        when(paymentService.getSessionId())
+        when(paymentService.getSessionUUID())
                 .thenReturn("session-id-1")
                 .thenReturn("session-id-2");
 

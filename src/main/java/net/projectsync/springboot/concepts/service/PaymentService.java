@@ -1,9 +1,9 @@
 package net.projectsync.springboot.concepts.service;
 
 import net.projectsync.springboot.concepts.model.AuditLogger;
-import net.projectsync.springboot.concepts.model.RequestTracker;
-import net.projectsync.springboot.concepts.model.SessionTracker;
-import net.projectsync.springboot.concepts.model.Transaction;
+import net.projectsync.springboot.concepts.model.RequestScope;
+import net.projectsync.springboot.concepts.model.SessionScope;
+import net.projectsync.springboot.concepts.model.PrototypeScope;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,114 +18,92 @@ public class PaymentService {
 
     // prototype --> incorrect way
     @Autowired
-    private Transaction directTransaction;  // this will be fixed object, not new each time. Use
+    private PrototypeScope prototypeScope;  // this will be fixed object, not new each time. Use
 
     // Prototype (via factory, so we get fresh instances)
     // Transaction is new on every call, even within the same HTTP request
     @Autowired
-    private ObjectFactory<Transaction> transactionFactory;
+    private ObjectFactory<PrototypeScope> prototypeFactory;
 
     // Request-scoped bean (proxy injected)
     // RequestTracker is stable only for the lifetime of a single request, then swapped out.
     @Autowired
-    private RequestTracker requestTracker;
+    private RequestScope requestScope;
 
     // Session-scoped bean (proxy injected)
     // Same bean across multiple requests, as long as it’s the same session
     @Autowired
-    private SessionTracker sessionTracker;
+    private SessionScope sessionScope;
 
     public void transfer(String fromAcc, String toAcc, double amount) {
 
         System.out.println();
-        // New Transaction object for each transfer
-        Transaction transaction = transactionFactory.getObject();
+        PrototypeScope prototypeScope = prototypeFactory.getObject();
         auditLogger.log("Singleton Bean hash code: " + auditLogger.hashCode());
-        auditLogger.log("Prototype Bean hash code: " + transaction.hashCode());
-        transaction.setFromAccount(fromAcc);
-        transaction.setToAccount(toAcc);
-        transaction.setAmount(amount);
-        transaction.process();
+        auditLogger.log("Prototype Bean hash code: " + prototypeScope.hashCode());
+        prototypeScope.process(fromAcc, toAcc, amount);
 
         /* Output:
-           AUDIT: Singleton Bean hash code: 1303547057
-           AUDIT: Prototype Bean hash code: 2075170189
-           AUDIT: Processing transaction: 1000.0 from ACC1 to ACC2
+        AUDIT: Singleton Bean hash code: 760925533
+        AUDIT: Prototype Bean hash code: 991305095
+        AUDIT: Processing transaction: 1000.0 from ACC1 to ACC2
 
-           AUDIT: Singleton Bean hash code: 1303547057
-           AUDIT: Prototype Bean hash code: 915280392
-           AUDIT: Processing transaction: 2000.0 from ACC3 to ACC4
+        AUDIT: Singleton Bean hash code: 760925533
+        AUDIT: Prototype Bean hash code: 1792308514
+        AUDIT: Processing transaction: 2000.0 from ACC3 to ACC4
         */
     }
 
-    public String getRequestId() {
+    public String getRequestUUID() {
 
         System.out.println();
-        String requestId = requestTracker.getRequestId();
-        auditLogger.log("Request bean proxy hashCode: " + requestTracker.hashCode());
-        auditLogger.log("Request bean real hashCode: " + requestId.toString()); // Instead of logging hashCode() on the proxy, log something from inside the bean itself to “see” the real bean hashcode
-        auditLogger.log("Request ID: " + requestId);
-
-        return requestId;
+        auditLogger.log("Request bean proxy hashCode: " + requestScope.hashCode());
+        auditLogger.log("Request bean real hashCode: "  + requestScope.getRealHashCode()); // Instead of logging hashCode() on the proxy, log something from inside the bean itself to “see” the real bean hashcode
+        
+        String requestUUID = requestScope.getRequestUUID();
+        auditLogger.log("Request UUID: " + requestUUID);
+        return requestUUID;
 
         /*
         // Same proxy object each time, but underneath it fetches a new real bean with a new ID per request.
-        AUDIT: Request bean proxy hashCode: 142869248
-        AUDIT: Request bean real hashCode: 1849b675-c036-45e4-9db6-b1c6eab4ea9f
-        AUDIT: Request ID: 1849b675-c036-45e4-9db6-b1c6eab4ea9f
+        AUDIT: Request bean proxy hashCode: 71352732
+        AUDIT: Request bean real hashCode: 1659601019
+        AUDIT: Request UUID: 59e74712-c955-452e-b8a0-0e9db594f441
 
-        AUDIT: Request bean proxy hashCode: 142869248
-        AUDIT: Request bean real hashCode: 7ae17685-c5cd-493c-bcac-99ec7db4c148
-        AUDIT: Request ID: 7ae17685-c5cd-493c-bcac-99ec7db4c148
+        AUDIT: Request bean proxy hashCode: 71352732
+        AUDIT: Request bean real hashCode: 1584430440
+        AUDIT: Request UUID: 2525e1e7-aaec-40e0-9393-013c4c60e167
         */
     }
 
-    public String getSessionId() {
+    public String getSessionUUID() {
 
         System.out.println();
-        String sessionId = sessionTracker.getSessionId();
-        auditLogger.log("Session bean proxy hashCode: " + sessionTracker.hashCode());
-        auditLogger.log("Session bean real hashCode : " + sessionTracker.toString());
-        auditLogger.log("Session ID: " + sessionId);
-        return sessionId;
+        auditLogger.log("Session bean proxy hashCode: " + sessionScope.hashCode());
+        auditLogger.log("Session bean real hashCode : " + sessionScope.getRealHashCode());
+        
+        String sessionUUID = sessionScope.getSessionUUID();
+        auditLogger.log("Session UUID: " + sessionUUID);
+        return sessionUUID;
 
         /*
         Browser Tab 1:
-        AUDIT: Session bean proxy hashCode: 1287202254
-        AUDIT: Session bean real hashCode : 1ac5adef-4006-47e4-a29f-5ff819b3581a
-        AUDIT: Session ID: 1ac5adef-4006-47e4-a29f-5ff819b3581a
+        AUDIT: Session bean proxy hashCode: -1918165515
+        AUDIT: Session bean real hashCode : 1418358366
+        AUDIT: Session UUID: f096d7ae-dce0-49a4-b6e0-9712ddd7d617
 
-        Browser Tab 1:
-        AUDIT: Session bean proxy hashCode: 1287202254
-        AUDIT: Session bean real hashCode : 1ac5adef-4006-47e4-a29f-5ff819b3581a
-        AUDIT: Session ID: 1ac5adef-4006-47e4-a29f-5ff819b3581a
+        Browser Tab 2:
+        AUDIT: Session bean proxy hashCode: -1918165515
+        AUDIT: Session bean real hashCode : 1418358366
+        AUDIT: Session UUID: f096d7ae-dce0-49a4-b6e0-9712ddd7d617
 
-        Browser Tab 2 in incognito mode:
-        AUDIT: Session bean proxy hashCode: 1287202254
-        AUDIT: Session bean real hashCode : 0546eebe-1506-42a7-89c4-8cdaa2b954e1
-        AUDIT: Session ID: 0546eebe-1506-42a7-89c4-8cdaa2b954e1
+        Browser Tab 1 in incognito mode:
+        AUDIT: Session bean proxy hashCode: -1918165515
+        AUDIT: Session bean real hashCode : 1072325543
+        AUDIT: Session UUID: f45ce9fc-87c7-4acf-8937-a8208b7376f6
         */
-
-        /*
-         * Notes:
-         *  - Session bean proxy hashCode: 1287202254 → The proxy object Spring injected into your singleton service.
-         *      This will always be the same because the proxy itself is a singleton.
-         *  - Session bean real hashCode : 1ac5adef-4006-47e4-a29f-5ff819b3581a → This is the actual underlying session-scoped bean instance,
-         *      tied to your current HTTP session.
-         *  - Session ID: ... → Same as the bean’s internal UUID, proving the bean sticks around as long as the session does.
-         */
     }
 }
-
-/* Output:
-Initiating transfer...
-Prototype Bean hash code: 1237416868
-Processing transaction: 1000.0 from ACC1 to ACC2
-Initiating transfer...
-Prototype Bean hash code: 2050907347
-Processing transaction: 2000.0 from ACC3 to ACC4
- */
-
 
 /*
 | Aspect           | **Prototype Scope**                                                                                         | **Request Scope**                                                                               |

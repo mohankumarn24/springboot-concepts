@@ -1,13 +1,10 @@
 package net.projectsync.springboot.concepts.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.projectsync.springboot.concepts.model.Transaction;
 import net.projectsync.springboot.concepts.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.time.Instant;
 
 @RestController
@@ -26,15 +23,18 @@ public class PaymentController {
     }
 
     @GetMapping("/request")
-    public String getRequestId() {
+    public String getrequestUUID() {
 
-        return "Request ID: " + paymentService.getRequestId();
+        return "Request UUID: " + paymentService.getRequestUUID();
     }
 
     @GetMapping("/session")
     public String getSessionId(HttpServletRequest request) {
 
-        return "Session ID: " + paymentService.getSessionId() + ", JSESSIONID: " + request.getSession().getId();
+    	// logs are printed twice for second request and onwards. Reason:
+    	// Logging happens twice because Spring MVC may internally call the method again during response processing (proxy forwards each call to the same bean).
+    	// Duplicate logs do not indicate a new session bean.
+        return "Session UUID: " + paymentService.getSessionUUID() + ", JSESSIONID: " + request.getSession().getId();
     }
 }
 
