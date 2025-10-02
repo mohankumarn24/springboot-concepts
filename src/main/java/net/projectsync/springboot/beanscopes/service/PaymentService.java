@@ -1,12 +1,13 @@
-package net.projectsync.springboot.concepts.service;
+package net.projectsync.springboot.beanscopes.service;
 
-import net.projectsync.springboot.concepts.model.AuditLogger;
-import net.projectsync.springboot.concepts.model.RequestScope;
-import net.projectsync.springboot.concepts.model.SessionScope;
-import net.projectsync.springboot.concepts.model.PrototypeScope;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import net.projectsync.springboot.beanscopes.model.AuditLogger;
+import net.projectsync.springboot.beanscopes.model.PrototypeScope;
+import net.projectsync.springboot.beanscopes.model.RequestScope;
+import net.projectsync.springboot.beanscopes.model.SessionScope;
 
 @Service
 public class PaymentService {

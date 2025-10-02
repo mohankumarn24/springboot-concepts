@@ -1,4 +1,4 @@
-package net.projectsync.springboot.concepts.model;
+package net.projectsync.springboot.beanscopes.model;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

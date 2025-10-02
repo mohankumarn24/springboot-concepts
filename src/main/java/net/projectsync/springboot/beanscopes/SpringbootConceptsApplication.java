@@ -1,10 +1,11 @@
-package net.projectsync.springboot.concepts;
+package net.projectsync.springboot.beanscopes;
 
-import net.projectsync.springboot.concepts.service.PaymentService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import net.projectsync.springboot.beanscopes.service.PaymentService;
 
 @SpringBootApplication
 public class SpringbootConceptsApplication {

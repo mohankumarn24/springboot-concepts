@@ -1,4 +1,4 @@
-package net.projectsync.springboot.concepts.model;
+package net.projectsync.springboot.beanscopes.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

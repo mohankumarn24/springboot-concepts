@@ -1,10 +1,12 @@
-package net.projectsync.springboot.concepts.controller;
+package net.projectsync.springboot.beanscopes.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.projectsync.springboot.concepts.service.PaymentService;
+import net.projectsync.springboot.beanscopes.service.PaymentService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.time.Instant;
 
 @RestController
