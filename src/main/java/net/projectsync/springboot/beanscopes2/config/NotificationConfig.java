@@ -30,7 +30,7 @@ public class NotificationConfig {
 
 	1️. Why you need it
 		- Request and session beans only exist during an active HTTP request or session.
-		- Singleton beans (like @RestController) are created at application startup, long before any HTTP request exists.
+		- Singleton beans (like @RestController, @Service) are created at application startup, long before any HTTP request exists.
 		- Injecting a request/session bean directly into a singleton causes:
 	  		Scope 'request' is not active for the current thread
 
@@ -39,7 +39,7 @@ public class NotificationConfig {
 		- When you call a method on the proxy during a request/session, it delegates to the real bean for the current HTTP request/session.
 
 	Effectively:
-		[Singleton Controller] --> [Proxy] --> [Real Request/Session Bean]
+		[Singleton Controller/Service] --> [Proxy] --> [Real Request/Session Bean]
 		- The proxy is singleton; the bean it delegates to is scoped per request/session.
 
 	3️. How to use it
