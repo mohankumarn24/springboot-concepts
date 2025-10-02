@@ -26,6 +26,10 @@ public class BeanScopeService {
 	@Qualifier("notificationSession")
 	private NotificationService notificationSession;
 
+	@Autowired
+	@Qualifier("notificationApplication")
+	private NotificationService notificationApplication;
+	
 	public Map<String, Object> singletonScope() {
 		return Map.of(
 				"scope", notificationSingleton.getScopeName(),
@@ -53,5 +57,12 @@ public class BeanScopeService {
 				"scope", notificationSession.getScopeName(),
 				"uuid", notificationSession.getUUID(), 
 				"hashcode", notificationSession.getRealHashCode());
+	}
+
+	public Map<String, Object> applicationScope() {
+		return Map.of(
+				"scope", notificationApplication.getScopeName(),
+				"uuid", notificationApplication.getUUID(), 
+				"hashcode", notificationApplication.getRealHashCode());
 	}
 }

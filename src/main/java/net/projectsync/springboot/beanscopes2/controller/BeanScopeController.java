@@ -33,6 +33,11 @@ public class BeanScopeController {
 	public Map<String, Object> sessionScope() {
 		return beanScopeService.sessionScope();
 	}
+	
+	@GetMapping("/application")
+	public Map<String, Object> applicationScope() {
+		return beanScopeService.applicationScope();
+	}
 }
 
 /*
