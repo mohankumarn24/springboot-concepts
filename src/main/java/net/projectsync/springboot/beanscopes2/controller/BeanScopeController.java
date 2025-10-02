@@ -17,7 +17,6 @@ public class BeanScopeController {
 	@GetMapping("/singleton")
 	public Map<String, Object> singletonScope() {
 		return beanScopeService.singletonScope();
-
 	}
 
 	@GetMapping("/prototype")
@@ -35,7 +34,6 @@ public class BeanScopeController {
 		return beanScopeService.sessionScope();
 	}
 }
-
 
 /*
 	- Can we use AnnotationConfigApplicationContext? It will not work for Request and Session scopes beans as it is web-aware context
