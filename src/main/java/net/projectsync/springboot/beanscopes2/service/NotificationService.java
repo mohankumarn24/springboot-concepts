@@ -24,3 +24,17 @@ public class NotificationService {
     	return System.identityHashCode(this);
     }
 }
+
+
+/*
+| Use case                                                                   | Method                         |
+| -------------------------------------------------------------------------- | ------------------------------ |
+| Normal object equality (e.g. in HashMap, HashSet)                          | `obj.hashCode()`               |
+| You need to differentiate instances regardless of equals/hashCode override | `System.identityHashCode(obj)` |
+| You’re debugging or want to print a unique identifier                      | `System.identityHashCode(obj)` |
+
+
+Think of it like:
+ - obj.hashCode() 				= logical identity
+ - System.identityHashCode(obj) = physical identity
+*/
